@@ -1,1 +1,1 @@
-# APP-TO-SEND-SMS-USING-WEBSOCKET
+# WebSocket Messaging App
