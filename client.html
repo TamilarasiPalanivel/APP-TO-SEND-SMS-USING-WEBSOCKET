@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket SMS Client</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin: 15px 0;
+            border: 2px solid #87cefa;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color:blue
+            ;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color:#45a049;
+        }
+
+        #response {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+            word-wrap: break-word;
+        }
+
+        .status {
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .status.connected {
+            color: green;
+        }
+
+        .status.disconnected {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>WebSocket SMS Client</h2>
+        <p class="status disconnected" id="status">Disconnected from server</p>
+        <input type="text" id="phone" placeholder="Enter phone number" />
+        <input type="text" id="message" placeholder="Enter SMS message" />
+        <button onclick="sendMessage()">Send SMS</button>
+        <p id="response"></p>
+    </div>
+
+    <script>
+        const ws = new WebSocket('ws://localhost:8765');
+        const statusElement = document.getElementById('status');
+
+        ws.onopen = function() {
+            statusElement.innerText = 'Connected to server';
+            statusElement.classList.remove('disconnected');
+            statusElement.classList.add('connected');
+            alert('WebSocket connection established!');
+        };
+
+        ws.onmessage = function(event) {
+            document.getElementById('response').innerText = `Received from server: ${event.data}`;
+        };
+
+        ws.onerror = function() {
+            statusElement.innerText = 'Error connecting to server';
+            statusElement.classList.remove('connected');
+            statusElement.classList.add('disconnected');
+        };
+
+        ws.onclose = function() {
+            statusElement.innerText = 'Disconnected from server';
+            statusElement.classList.remove('connected');
+            statusElement.classList.add('disconnected');
+        };
+
+        function sendMessage() {
+            const phone = document.getElementById('phone').value;
+            const message = document.getElementById('message').value;
+
+            if (phone.trim() === '' || message.trim() === '') {
+                alert('Please enter both a phone number and a message before sending.');
+                return;
+            }
+
+            // Format: "phone_number,message_body"
+            const fullMessage = `${phone},${message}`;
+            ws.send(fullMessage);
+            console.log(`Sent to server: ${fullMessage}`);
+        }
+    </script>
+</body>
+</html>
